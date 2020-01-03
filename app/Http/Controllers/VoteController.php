@@ -57,13 +57,6 @@ class VoteController extends Controller
         ]);
     }
 
-    public function search(Request $request)
-    {
-        return response()->json([
-           'users' => User::where('name', 'LIKE', '%'.$request['input'].'%')->paginate()
-        ]);
-    }
-
     public function category($id)
     {
         return response()->json([

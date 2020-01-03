@@ -2,8 +2,8 @@ import User from "../models/user";
 
 let state = {
     auth: null,
-    title: "2020 Student's Week",
-    name: "2020 Student's Week",
+    title: "2020 ITCA Dakar Trip",
+    name: "2020 ITCA Dakar Trip",
 };
 
 export default state;

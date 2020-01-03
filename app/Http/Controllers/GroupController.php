@@ -18,6 +18,13 @@ class GroupController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        return response()->json([
+            'users' => User::where('name', 'LIKE', '%'.$request['input'].'%')->paginate()
+        ]);
+    }
+
     public function show($id)
     {
         return response()->json([

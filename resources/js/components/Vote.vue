@@ -162,7 +162,7 @@
             },
             searchPerson: function (page = 1) {
                 // load categories
-                axios.post('vote/search?page='+page, this.search)
+                axios.post('everyone/search?page='+page, this.search)
                     .then(res => {
                         this.users = res.data.users;
                     });

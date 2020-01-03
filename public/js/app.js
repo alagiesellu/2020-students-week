@@ -2158,20 +2158,140 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Gossip",
   data: function data() {
     return {
-      categories: {}
+      gossips: {},
+      users: {},
+      search: {
+        input: null
+      },
+      gossip: {
+        user: null,
+        message: null
+      }
     };
   },
   methods: {
-    fetchData: function fetchData() {
+    submitGossip: function submitGossip(e) {
       var _this = this;
 
-      axios.get('vote/categories').then(function (res) {
-        _this.categories = res.data.categories;
+      e.preventDefault();
+      axios.post('gossips', {
+        message: this.gossip.message,
+        user: this.gossip.user.id
+      }).then(function (res) {
+        _this.$root.post_success(res.data.success);
+
+        _this.get_gossips(_this.gossips.last_page);
       });
+    },
+    writeGossip: function writeGossip(user) {
+      this.gossip.user = user;
+    },
+    searchPerson: function searchPerson() {
+      var _this2 = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      // load categories
+      axios.post('everyone/search?page=' + page, this.search).then(function (res) {
+        _this2.users = res.data.users;
+      });
+    },
+    deleteGossip: function deleteGossip(gossip) {
+      var _this3 = this;
+
+      axios.post('gossips/delete/' + gossip.id).then(function (res) {
+        _this3.$root.post_success(res.data.success);
+
+        _this3.get_gossips();
+      });
+    },
+    likeGossip: function likeGossip(gossip) {
+      var _this4 = this;
+
+      if (gossip.likes.indexOf(this.$store.state.auth.id) !== -1) this.$root.post_errors([['Gossip already liked.']]);else axios.post('gossips/like/' + gossip.id).then(function (res) {
+        _this4.$root.post_success(res.data.success);
+
+        _this4.get_gossips(_this4.gossips.current_page);
+      });
+    },
+    dislikeGossip: function dislikeGossip(gossip) {
+      var _this5 = this;
+
+      if (gossip.dislikes.indexOf(this.$store.state.auth.id) !== -1) this.$root.post_errors([['Gossip already disliked.']]);else axios.post('gossips/dislike/' + gossip.id).then(function (res) {
+        _this5.$root.post_success(res.data.success);
+
+        _this5.get_gossips(_this5.gossips.current_page);
+      });
+    },
+    get_gossips: function get_gossips() {
+      var _this6 = this;
+
+      var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      axios.get('gossips?page=' + page).then(function (res) {
+        _this6.gossips = res.data.gossips;
+      });
+    },
+    fetchData: function fetchData() {
+      this.get_gossips();
     }
   },
   mounted: function mounted() {
@@ -2316,6 +2436,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/user */ "./resources/js/models/user.js");
 //
 //
 //
@@ -2391,31 +2512,61 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Home",
   data: function data() {
     return {
-      me: {}
+      me: {},
+      edit: {
+        prop: null,
+        form: {
+          previewImage: null,
+          about: null
+        }
+      }
     };
   },
   methods: {
-    fetchData: function fetchData() {
+    uploadImage: function uploadImage(e) {
       var _this = this;
 
+      var image = e.target.files[0];
+      var reader = new FileReader();
+      reader.readAsDataURL(image);
+
+      reader.onload = function (e) {
+        _this.edit.form.previewImage = e.target.result;
+        axios.post('me/upload', {
+          pic: _this.edit.form.previewImage
+        }).then(function (res) {
+          location.reload();
+        });
+      };
+    },
+    editProfile: function editProfile(prop) {
+      this.edit.prop = prop;
+      if (prop === 'about') this.edit.form.about = this.$store.state.auth.about;
+    },
+    submitEdit: function submitEdit(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      axios.post('me/edit', {
+        about: this.edit.form.about
+      }).then(function (res) {
+        _this2.$root.post_success(res.data.success);
+
+        _this2.$store.state.auth = new _models_user__WEBPACK_IMPORTED_MODULE_0__["default"](res.data.user); // store user object in vue state
+
+        _this2.edit.prop = null;
+      });
+    },
+    fetchData: function fetchData() {
+      var _this3 = this;
+
       axios.get('me').then(function (res) {
-        _this.me = res.data.me;
+        _this3.me = res.data.me;
       });
     }
   },
@@ -2962,7 +3113,7 @@ __webpack_require__.r(__webpack_exports__);
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
       // load categories
-      axios.post('vote/search?page=' + page, this.search).then(function (res) {
+      axios.post('everyone/search?page=' + page, this.search).then(function (res) {
         _this2.users = res.data.users;
       });
     },
@@ -2988,6 +3139,112 @@ __webpack_require__.r(__webpack_exports__);
     });
   }
 });
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&":
+/*!**********************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& ***!
+  \**********************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.uploading-image[data-v-f2b6376c]{\n    display:-webkit-box;\n    display:flex;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/lib/css-base.js":
+/*!*************************************************!*\
+  !*** ./node_modules/css-loader/lib/css-base.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
 
 /***/ }),
 
@@ -21115,6 +21372,545 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/lib/addStyles.js":
+/*!****************************************************!*\
+  !*** ./node_modules/style-loader/lib/addStyles.js ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getTarget = function (target, parent) {
+  if (parent){
+    return parent.querySelector(target);
+  }
+  return document.querySelector(target);
+};
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(target, parent) {
+                // If passing function in options, then use it for resolve "head" element.
+                // Useful for Shadow Root style i.e
+                // {
+                //   insertInto: function () { return document.querySelector("#foo").shadowRoot }
+                // }
+                if (typeof target === 'function') {
+                        return target();
+                }
+                if (typeof memo[target] === "undefined") {
+			var styleTarget = getTarget.call(this, target, parent);
+			// Special case to return head of iframe instead of iframe itself
+			if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+				try {
+					// This will throw an exception if access to iframe is blocked
+					// due to cross-origin restrictions
+					styleTarget = styleTarget.contentDocument.head;
+				} catch(e) {
+					styleTarget = null;
+				}
+			}
+			memo[target] = styleTarget;
+		}
+		return memo[target]
+	};
+})();
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(/*! ./urls */ "./node_modules/style-loader/lib/urls.js");
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton && typeof options.singleton !== "boolean") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+        if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else if (typeof options.insertAt === "object" && options.insertAt.before) {
+		var nextSibling = getElement(options.insertAt.before, target);
+		target.insertBefore(style, nextSibling);
+	} else {
+		throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+
+	if(options.attrs.nonce === undefined) {
+		var nonce = getNonce();
+		if (nonce) {
+			options.attrs.nonce = nonce;
+		}
+	}
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	if(options.attrs.type === undefined) {
+		options.attrs.type = "text/css";
+	}
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function getNonce() {
+	if (false) {}
+
+	return __webpack_require__.nc;
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = typeof options.transform === 'function'
+		 ? options.transform(obj.css) 
+		 : options.transform.default(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/lib/urls.js":
+/*!***********************************************!*\
+  !*** ./node_modules/style-loader/lib/urls.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/|\s*$)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/timers-browserify/main.js":
 /*!************************************************!*\
   !*** ./node_modules/timers-browserify/main.js ***!
@@ -21233,9 +22029,9 @@ var render = function() {
                 },
                 [
                   _vm._v(
-                    "\n                    " +
+                    "\n                        " +
                       _vm._s(_vm.$store.state.name) +
-                      "\n                "
+                      "\n                    "
                   )
                 ]
               )
@@ -21297,8 +22093,6 @@ var render = function() {
                 },
                 [
                   _c("ul", { staticClass: "navbar-nav ml-auto" }, [
-                    _vm._m(2),
-                    _vm._v(" "),
                     _c("li", { staticClass: "dropdown nav-item" }, [
                       _c(
                         "a",
@@ -21322,7 +22116,7 @@ var render = function() {
                           _vm._v(" "),
                           _c("p", { staticClass: "d-lg-none" }, [
                             _vm._v(
-                              "\n                                    Log out\n                                "
+                              "\n                                        Log out\n                                    "
                             )
                           ])
                         ]
@@ -21355,11 +22149,9 @@ var render = function() {
           ]
         ),
         _vm._v(" "),
-        _vm._m(3),
-        _vm._v(" "),
         _c("div", { staticClass: "content" }, [_c("router-view")], 1),
         _vm._v(" "),
-        _vm._m(4)
+        _vm._m(2)
       ]),
       _vm._v(" "),
       _c("notifications", {
@@ -21417,82 +22209,6 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("li", { staticClass: "search-bar input-group" }, [
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-link",
-          attrs: {
-            id: "search-button",
-            "data-toggle": "modal",
-            "data-target": "#searchModal"
-          }
-        },
-        [
-          _c("i", { staticClass: "tim-icons icon-zoom-split" }),
-          _vm._v(" "),
-          _c("span", { staticClass: "d-lg-none d-md-block" }, [
-            _vm._v("Search")
-          ])
-        ]
-      )
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      {
-        staticClass: "modal modal-search fade",
-        attrs: {
-          id: "searchModal",
-          tabindex: "-1",
-          role: "dialog",
-          "aria-labelledby": "searchModal",
-          "aria-hidden": "true"
-        }
-      },
-      [
-        _c(
-          "div",
-          { staticClass: "modal-dialog", attrs: { role: "document" } },
-          [
-            _c("div", { staticClass: "modal-content" }, [
-              _c("div", { staticClass: "modal-header" }, [
-                _c("input", {
-                  staticClass: "form-control",
-                  attrs: {
-                    type: "text",
-                    id: "inlineFormInputGroup",
-                    placeholder: "SEARCH"
-                  }
-                }),
-                _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "close",
-                    attrs: {
-                      type: "button",
-                      "data-dismiss": "modal",
-                      "aria-label": "Close"
-                    }
-                  },
-                  [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-                )
-              ])
-            ])
-          ]
-        )
-      ]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("footer", { staticClass: "footer" }, [
       _c("div", { staticClass: "container-fluid" }, [
         _c("ul", { staticClass: "nav" }, [
@@ -21505,7 +22221,7 @@ var staticRenderFns = [
               },
               [
                 _vm._v(
-                  "\n                            University of The Gambia\n                        "
+                  "\n                                University of The Gambia\n                            "
                 )
               ]
             )
@@ -21520,7 +22236,7 @@ var staticRenderFns = [
               },
               [
                 _vm._v(
-                  "\n                            Students' Association\n                        "
+                  "\n                                Students' Association\n                            "
                 )
               ]
             )
@@ -21528,13 +22244,13 @@ var staticRenderFns = [
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "copyright" }, [
-          _vm._v("\n                    © 2020 made with "),
+          _vm._v("\n                        © 2020 made with "),
           _c("i", { staticClass: "tim-icons icon-heart-2" }),
-          _vm._v(" by\n                    "),
+          _vm._v(" by\n                        "),
           _c("a", { attrs: { href: "javascript:void(0)", target: "_blank" } }, [
             _vm._v("El Stupidos")
           ]),
-          _vm._v(" for fun.\n                ")
+          _vm._v(" for fun.\n                    ")
         ])
       ])
     ])
@@ -21671,139 +22387,375 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "row" }, [
     _c("div", { staticClass: "col-md-12" }, [
-      _c(
-        "div",
-        {
-          directives: [
-            {
-              name: "show",
-              rawName: "v-show",
-              value: _vm.$route.params.id === undefined,
-              expression: "$route.params.id === undefined"
-            }
-          ],
-          staticClass: "card"
-        },
-        [
-          _c("div", { staticClass: "card-header" }),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "card-body" },
-            _vm._l(Object.keys(_vm.categories), function(key) {
+      _c("div", { staticClass: "card" }, [
+        _c("div", { staticClass: "card-header" }, [
+          _c("div", { staticClass: "card-title" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-sm btn-primary",
+                attrs: {
+                  "data-toggle": "modal",
+                  "data-target": "#searchGossipModal"
+                }
+              },
+              [_vm._v("\n                        Gossip\n                    ")]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "modal modal-search fade",
+                attrs: {
+                  id: "searchGossipModal",
+                  tabindex: "-1",
+                  role: "dialog",
+                  "aria-labelledby": "searchModal",
+                  "aria-hidden": "true"
+                }
+              },
+              [
+                _c(
+                  "div",
+                  { staticClass: "modal-dialog", attrs: { role: "document" } },
+                  [
+                    _c("div", { staticClass: "modal-content" }, [
+                      _c("div", { staticClass: "modal-header" }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.search.input,
+                              expression: "search.input"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: {
+                            type: "text",
+                            placeholder:
+                              "Search for the person you want to gossip for..."
+                          },
+                          domProps: { value: _vm.search.input },
+                          on: {
+                            change: _vm.searchPerson,
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(_vm.search, "input", $event.target.value)
+                            }
+                          }
+                        }),
+                        _vm._v(" "),
+                        _vm._m(0)
+                      ])
+                    ])
+                  ]
+                )
+              ]
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "card-body" },
+          [
+            _vm.users.data
+              ? _c(
+                  "div",
+                  { staticClass: "row" },
+                  [
+                    _vm._l(_vm.users.data, function(user) {
+                      return _c("div", { staticClass: "col-md-4" }, [
+                        _c("div", { staticClass: "card card-user" }, [
+                          _c("div", { staticClass: "card-body" }, [
+                            _c("div", { staticClass: "author" }, [
+                              _c("div", { staticClass: "block block-three" }),
+                              _vm._v(" "),
+                              _c("div", { staticClass: "block block-four" }),
+                              _vm._v(" "),
+                              _c(
+                                "a",
+                                { attrs: { href: "javascript:void(0)" } },
+                                [
+                                  _c("img", {
+                                    staticClass: "avatar",
+                                    attrs: { src: "/storage/" + user.img }
+                                  }),
+                                  _vm._v(" "),
+                                  _c("h4", { staticClass: "title" }, [
+                                    _vm._v(_vm._s(user.name))
+                                  ])
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c("small", { staticClass: "description" }, [
+                                _vm._v(
+                                  "\n                                        " +
+                                    _vm._s(
+                                      user.gender == "m" ? "Male" : "Female"
+                                    ) +
+                                    "\n                                    "
+                                )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _c("p"),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "card-description" }, [
+                              _vm._v(
+                                "\n                                    " +
+                                  _vm._s(user.about) +
+                                  "\n                                "
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-sm btn-primary",
+                                attrs: {
+                                  "data-toggle": "modal",
+                                  "data-target": "#gossipModal"
+                                },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.writeGossip(user)
+                                  }
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                    Gossip\n                                "
+                                )
+                              ]
+                            )
+                          ])
+                        ])
+                      ])
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      {
+                        staticClass: "modal modal-search fade",
+                        attrs: {
+                          id: "gossipModal",
+                          tabindex: "-1",
+                          role: "dialog",
+                          "aria-labelledby": "searchModal",
+                          "aria-hidden": "true"
+                        }
+                      },
+                      [
+                        _c(
+                          "div",
+                          {
+                            staticClass: "modal-dialog",
+                            attrs: { role: "document" }
+                          },
+                          [
+                            _c("div", { staticClass: "modal-content" }, [
+                              _c("div", { staticClass: "modal-header" }, [
+                                _vm.gossip.user
+                                  ? _c("input", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: _vm.gossip.message,
+                                          expression: "gossip.message"
+                                        }
+                                      ],
+                                      staticClass: "form-control",
+                                      attrs: {
+                                        type: "text",
+                                        placeholder:
+                                          "Gossip " + _vm.gossip.user.name
+                                      },
+                                      domProps: { value: _vm.gossip.message },
+                                      on: {
+                                        change: _vm.submitGossip,
+                                        input: function($event) {
+                                          if ($event.target.composing) {
+                                            return
+                                          }
+                                          _vm.$set(
+                                            _vm.gossip,
+                                            "message",
+                                            $event.target.value
+                                          )
+                                        }
+                                      }
+                                    })
+                                  : _vm._e(),
+                                _vm._v(" "),
+                                _vm._m(1)
+                              ])
+                            ])
+                          ]
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      { staticClass: "col-12" },
+                      [
+                        _c("laravel-vue-pagination", {
+                          attrs: { data: _vm.users, limit: 5, align: "center" },
+                          on: { "pagination-change-page": _vm.searchPerson }
+                        })
+                      ],
+                      1
+                    )
+                  ],
+                  2
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            _vm._l(_vm.gossips.data, function(gossip) {
               return _c(
                 "div",
                 {
-                  staticClass: "alert alert-info alert-with-icon",
+                  staticClass: "alert alert-primary alert-with-icon",
                   attrs: { "data-notify": "container" }
                 },
                 [
-                  _c("span", {
-                    staticClass: "tim-icons icon-trophy",
-                    attrs: { "data-notify": "icon" }
-                  }),
+                  _c("span", { attrs: { "data-notify": "icon" } }, [
+                    _c("img", {
+                      staticClass: "avatar",
+                      attrs: { src: "/storage/" + gossip.to_user.img }
+                    })
+                  ]),
                   _vm._v(" "),
-                  _c(
-                    "router-link",
-                    {
-                      staticClass:
-                        "text-white font-weight-bold text-underline h4",
-                      attrs: {
-                        to: { name: "vote", params: { id: key } },
-                        "data-notify": "message"
-                      }
-                    },
-                    [
-                      _vm._v(
-                        "\n                        " +
-                          _vm._s(_vm.categories[key]) +
-                          "\n                    "
-                      )
-                    ]
-                  )
-                ],
-                1
-              )
-            }),
-            0
-          )
-        ]
-      ),
-      _vm._v(" "),
-      _c(
-        "div",
-        {
-          directives: [
-            {
-              name: "show",
-              rawName: "v-show",
-              value: _vm.$route.params.id !== undefined,
-              expression: "$route.params.id !== undefined"
-            }
-          ],
-          staticClass: "card"
-        },
-        [
-          _c("div", { staticClass: "card-header" }, [
-            _c("div", { staticClass: "card-title h2" }, [
-              _c("i", { staticClass: "tim-icons icon-trophy" }),
-              _vm._v(
-                "\n                    " +
-                  _vm._s(_vm.categories[_vm.$route.params.id]) +
-                  "\n                    "
-              ),
-              _c(
-                "div",
-                { staticClass: "pull-right" },
-                [
-                  _c(
-                    "router-link",
-                    {
-                      staticClass: "btn btn-sm",
-                      attrs: { to: { name: "vote" } }
-                    },
-                    [
-                      _vm._v(
-                        "\n                            Back To List\n                        "
-                      )
-                    ]
-                  )
-                ],
-                1
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-md-4" }, [
-                _c("div", { staticClass: "card card-user" }, [
-                  _vm._m(0),
+                  _c("b", [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(gossip.to_user.name) +
+                        "\n                    "
+                    )
+                  ]),
                   _vm._v(" "),
-                  _c("div", { staticClass: "card-footer" }, [
-                    _c("div", { staticClass: "button-container" }, [
-                      _c(
-                        "button",
-                        {
-                          staticClass: "btn btn-sm",
-                          attrs: { href: "javascript:void(0)" }
-                        },
-                        [
-                          _vm._v(
-                            "\n                                        Vote for the " +
-                              _vm._s(_vm.categories[_vm.$route.params.id]) +
-                              "\n                                    "
-                          )
-                        ]
-                      )
-                    ])
+                  _c("i", { staticClass: "tim-icons icon-double-left" }),
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(gossip.message) +
+                      "\n\n                    "
+                  ),
+                  _c("div", { staticClass: "pull-right button-container" }, [
+                    _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value:
+                              gossip.from_user_id === _vm.$store.state.auth.id,
+                            expression:
+                              "gossip.from_user_id === $store.state.auth.id"
+                          }
+                        ],
+                        staticClass: "btn btn-sm btn-outline-danger",
+                        on: {
+                          click: function($event) {
+                            return _vm.deleteGossip(gossip)
+                          }
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                            Delete\n                        "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value:
+                              gossip.likes.indexOf(_vm.$store.state.auth.id) ===
+                              -1,
+                            expression:
+                              "gossip.likes.indexOf($store.state.auth.id) === -1"
+                          }
+                        ],
+                        staticClass:
+                          "btn btn-icon btn-sm btn-round btn-success",
+                        on: {
+                          click: function($event) {
+                            return _vm.likeGossip(gossip)
+                          }
+                        }
+                      },
+                      [_c("i", { staticClass: "tim-icons icon-check-2" })]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-icon btn-sm btn-round btn-default"
+                      },
+                      [
+                        _vm._v(
+                          "\n                            " +
+                            _vm._s(gossip.score) +
+                            "\n                        "
+                        )
+                      ]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value:
+                              gossip.dislikes.indexOf(
+                                _vm.$store.state.auth.id
+                              ) === -1,
+                            expression:
+                              "gossip.dislikes.indexOf($store.state.auth.id) === -1"
+                          }
+                        ],
+                        staticClass: "btn btn-icon btn-sm btn-round btn-danger",
+                        on: {
+                          click: function($event) {
+                            return _vm.dislikeGossip(gossip)
+                          }
+                        }
+                      },
+                      [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
+                    )
                   ])
-                ])
-              ])
-            ])
-          ])
-        ]
-      )
+                ]
+              )
+            })
+          ],
+          2
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "col-12" },
+          [
+            _c("laravel-vue-pagination", {
+              attrs: { data: _vm.gossips, limit: 5, align: "center" },
+              on: { "pagination-change-page": _vm.get_gossips }
+            })
+          ],
+          1
+        )
+      ])
     ])
   ])
 }
@@ -21812,40 +22764,35 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-body" }, [
-      _c("h3", { staticClass: "card-text text-info font-weight-bold" }, [
-        _vm._v("# 1")
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "author" }, [
-        _c("div", { staticClass: "block block-three" }),
-        _vm._v(" "),
-        _c("div", { staticClass: "block block-four" }),
-        _vm._v(" "),
-        _c("a", { attrs: { href: "javascript:void(0)" } }, [
-          _c("img", {
-            staticClass: "avatar",
-            attrs: { src: "/storage/profiles/default.png" }
-          }),
-          _vm._v(" "),
-          _c("h4", { staticClass: "title" }, [_vm._v("Name")])
-        ]),
-        _vm._v(" "),
-        _c("small", { staticClass: "description" }, [
-          _vm._v(
-            "\n                                        Gender\n                                    "
-          )
-        ])
-      ]),
-      _vm._v(" "),
-      _c("p"),
-      _vm._v(" "),
-      _c("div", { staticClass: "card-description" }, [
-        _vm._v(
-          "\n                                    About me..\n                                "
-        )
-      ])
-    ])
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
+    )
   }
 ]
 render._withStripped = true
@@ -22120,13 +23067,150 @@ var render = function() {
                     _vm._s(_vm.$store.state.auth.about) +
                     "\n                "
                 )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "button-container pull-right" }, [
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-link",
+                    attrs: { href: "#edit" },
+                    on: {
+                      click: function($event) {
+                        return _vm.editProfile("pic")
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        Picture\n                    "
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "a",
+                  {
+                    staticClass: "btn btn-link",
+                    attrs: { href: "#edit" },
+                    on: {
+                      click: function($event) {
+                        return _vm.editProfile("about")
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                        About\n                    "
+                    )
+                  ]
+                )
               ])
             ])
           : _vm._e()
       ])
     ]),
     _vm._v(" "),
-    _vm._m(1)
+    _c("div", { staticClass: "col-md-6", attrs: { id: "edit" } }, [
+      _c(
+        "form",
+        {
+          directives: [
+            {
+              name: "show",
+              rawName: "v-show",
+              value: _vm.edit.prop,
+              expression: "edit.prop"
+            }
+          ],
+          staticClass: "card",
+          on: { submit: _vm.submitEdit }
+        },
+        [
+          _vm._m(1),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body row" }, [
+            _c("div", { staticClass: "col-12" }, [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.edit.prop === "pic",
+                      expression: "edit.prop === 'pic'"
+                    }
+                  ]
+                },
+                [
+                  _c("input", {
+                    attrs: {
+                      placeholder: "Select profile picture..",
+                      type: "file",
+                      accept: "image/*"
+                    },
+                    on: { change: _vm.uploadImage }
+                  }),
+                  _vm._v(" "),
+                  _c("hr"),
+                  _vm._v(" "),
+                  _c("img", {
+                    staticClass: "uploading-image",
+                    attrs: { src: _vm.edit.form.previewImage }
+                  })
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.edit.prop === "about",
+                      expression: "edit.prop === 'about'"
+                    }
+                  ]
+                },
+                [
+                  _c("div", { staticClass: "form-group" }, [
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.edit.form.about,
+                          expression: "edit.form.about"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        rows: "4",
+                        cols: "80",
+                        placeholder: "Here can be your description"
+                      },
+                      domProps: { value: _vm.edit.form.about },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.edit.form, "about", $event.target.value)
+                        }
+                      }
+                    })
+                  ])
+                ]
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _vm._m(2)
+        ]
+      )
+    ])
   ])
 }
 var staticRenderFns = [
@@ -22138,34 +23222,6 @@ var staticRenderFns = [
       _c("div", { staticClass: "card-title" }, [
         _c("div", { staticClass: "pull-left text-uppercase h4 text-white" }, [
           _vm._v("My Profile")
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "button-container pull-right" }, [
-          _c(
-            "button",
-            {
-              staticClass: "btn btn-sm",
-              attrs: { href: "javascript:void(0)" }
-            },
-            [
-              _vm._v(
-                "\n                            Picture\n                        "
-              )
-            ]
-          ),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "btn btn-sm",
-              attrs: { href: "javascript:void(0)" }
-            },
-            [
-              _vm._v(
-                "\n                            About\n                        "
-              )
-            ]
-          )
         ])
       ])
     ])
@@ -22174,130 +23230,23 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-6" }, [
-      _c("div", { staticClass: "card" }, [
-        _c("div", { staticClass: "card-header" }, [
-          _c("h4", { staticClass: "card-title" }, [
-            _c("i", { staticClass: "tim-icons icon-bell-55" }),
-            _vm._v("\n                    Notifications\n                ")
-          ])
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "card-body" }, [
-          _c("div", { staticClass: "alert alert-primary" }, [
-            _c(
-              "button",
-              {
-                staticClass: "close",
-                attrs: {
-                  type: "button",
-                  "aria-hidden": "true",
-                  "data-dismiss": "alert",
-                  "aria-label": "Close"
-                }
-              },
-              [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-            ),
-            _vm._v(" "),
-            _c("span", [
-              _c("b", [_vm._v(" Primary - ")]),
-              _vm._v(
-                ' This is a regular notification made with ".alert-primary"'
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "alert alert-info" }, [
-            _c(
-              "button",
-              {
-                staticClass: "close",
-                attrs: {
-                  type: "button",
-                  "aria-hidden": "true",
-                  "data-dismiss": "alert",
-                  "aria-label": "Close"
-                }
-              },
-              [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-            ),
-            _vm._v(" "),
-            _c("span", [
-              _c("b", [_vm._v(" Info - ")]),
-              _vm._v(' This is a regular notification made with ".alert-info"')
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "alert alert-success" }, [
-            _c(
-              "button",
-              {
-                staticClass: "close",
-                attrs: {
-                  type: "button",
-                  "aria-hidden": "true",
-                  "data-dismiss": "alert",
-                  "aria-label": "Close"
-                }
-              },
-              [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-            ),
-            _vm._v(" "),
-            _c("span", [
-              _c("b", [_vm._v(" Success - ")]),
-              _vm._v(
-                ' This is a regular notification made with ".alert-success"'
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "alert alert-warning" }, [
-            _c(
-              "button",
-              {
-                staticClass: "close",
-                attrs: {
-                  type: "button",
-                  "aria-hidden": "true",
-                  "data-dismiss": "alert",
-                  "aria-label": "Close"
-                }
-              },
-              [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-            ),
-            _vm._v(" "),
-            _c("span", [
-              _c("b", [_vm._v(" Warning - ")]),
-              _vm._v(
-                ' This is a regular notification made with ".alert-warning"'
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "alert alert-danger" }, [
-            _c(
-              "button",
-              {
-                staticClass: "close",
-                attrs: {
-                  type: "button",
-                  "aria-hidden": "true",
-                  "data-dismiss": "alert",
-                  "aria-label": "Close"
-                }
-              },
-              [_c("i", { staticClass: "tim-icons icon-simple-remove" })]
-            ),
-            _vm._v(" "),
-            _c("span", [
-              _c("b", [_vm._v(" Danger - ")]),
-              _vm._v(
-                ' This is a regular notification made with ".alert-danger"'
-              )
-            ])
-          ])
-        ])
+    return _c("div", { staticClass: "card-header" }, [
+      _c("h4", { staticClass: "card-title" }, [
+        _c("i", { staticClass: "tim-icons icon-pencil" }),
+        _vm._v("\n                    Edit\n                ")
       ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card-footer" }, [
+      _c(
+        "button",
+        { staticClass: "btn btn-fill btn-primary", attrs: { type: "submit" } },
+        [_vm._v("Save")]
+      )
     ])
   }
 ]
@@ -41032,7 +41981,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Home_vue_vue_type_template_id_f2b6376c_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Home.vue?vue&type=template&id=f2b6376c&scoped=true& */ "./resources/js/components/Home.vue?vue&type=template&id=f2b6376c&scoped=true&");
 /* harmony import */ var _Home_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Home.vue?vue&type=script&lang=js& */ "./resources/js/components/Home.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& */ "./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -41040,7 +41991,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _Home_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _Home_vue_vue_type_template_id_f2b6376c_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _Home_vue_vue_type_template_id_f2b6376c_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -41069,6 +42020,22 @@ component.options.__file = "resources/js/components/Home.vue"
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./Home.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Home.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&":
+/*!***************************************************************************************************!*\
+  !*** ./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& ***!
+  \***************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/style-loader!../../../node_modules/css-loader??ref--6-1!../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../node_modules/postcss-loader/src??ref--6-2!../../../node_modules/vue-loader/lib??vue-loader-options!./Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Home.vue?vue&type=style&index=0&id=f2b6376c&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Home_vue_vue_type_style_index_0_id_f2b6376c_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
@@ -41373,7 +42340,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-window.app_name = "2020 Student's Week";
+window.app_name = "2020 ITCA Dakar Trip"; //"2020 Student's Week";
+
 window.groups = {};
 
 /***/ }),
@@ -41611,8 +42579,8 @@ __webpack_require__.r(__webpack_exports__);
 
 var state = {
   auth: null,
-  title: "2020 Student's Week",
-  name: "2020 Student's Week"
+  title: "2020 ITCA Dakar Trip",
+  name: "2020 ITCA Dakar Trip"
 };
 /* harmony default export */ __webpack_exports__["default"] = (state);
 

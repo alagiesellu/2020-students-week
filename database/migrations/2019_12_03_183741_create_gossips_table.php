@@ -18,6 +18,9 @@ class CreateGossipsTable extends Migration
             $table->integer('from_user_id');
             $table->integer('to_user_id');
             $table->string('message');
+            $table->json('likes');
+            $table->json('dislikes');
+            $table->integer('score')->default(0);
             $table->timestamps();
         });
     }
