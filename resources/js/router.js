@@ -4,6 +4,9 @@ import Home from "./components/Home";
 import Known from "./components/Known";
 import Unknown from "./components/Unknown";
 import Vote from "./components/Vote";
+import Gossip from "./components/Gossip";
+import Group from "./components/Group";
+import Everyone from "./components/Everyone";
 
 export default {
     routes: [
@@ -40,8 +43,8 @@ export default {
                     name: 'unknown',
                 },
                 {
-                    path: 'group',
-                    component: Home,
+                    path: 'group/:id?',
+                    component: Group,
                     name: 'group',
                 },
                 {
@@ -51,12 +54,12 @@ export default {
                 },
                 {
                     path: 'gossip',
-                    component: Home,
+                    component: Gossip,
                     name: 'gossip',
                 },
                 {
                     path: 'everyone',
-                    component: Home,
+                    component: Everyone,
                     name: 'everyone',
                 },
                 {

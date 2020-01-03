@@ -142,7 +142,7 @@
                     {
                         name: 'group',
                         icon: 'icon-molecule-40',
-                        title: this.$store.state.auth.getGroup,
+                        title: 'Groups',//this.$store.state.auth.getGroup,
                     },
                     {
                         name: 'everyone',

@@ -14,7 +14,7 @@ class Message extends Model
     ];
 
     protected $casts = [
-        'is_received' => 'array'
+        'is_received' => 'boolean'
     ];
 
     public function user()

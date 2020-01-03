@@ -4,11 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GroupChat extends Model
+class VoteLog extends Model
 {
     protected $fillable = [
+        'candidate_id',
         'user_id',
-        'group_id',
-        'message',
+        'category',
     ];
 }

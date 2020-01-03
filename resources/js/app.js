@@ -15,6 +15,9 @@ Vue.use(VueRouter);
 import Notifications from 'vue-notification';
 Vue.use(Notifications);
 
+import VModal from 'vue-js-modal';
+Vue.use(VModal);
+
 import router from "./router";
 import methods from "./methods";
 import state from "./store/state";

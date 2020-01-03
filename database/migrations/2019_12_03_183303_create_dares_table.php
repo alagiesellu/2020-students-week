@@ -15,6 +15,10 @@ class CreateDaresTable extends Migration
     {
         Schema::create('dares', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->integer('user_id');
+            $table->integer('by_user_id');
+            $table->string('message');
+            $table->json('votes');
             $table->timestamps();
         });
     }

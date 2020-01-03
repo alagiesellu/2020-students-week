@@ -24,6 +24,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/me/upload', 'MeController@upload');
 
     Route::get('/vote/categories', 'VoteController@categories');
+    Route::get('/vote/categories/{id}', 'VoteController@category');
+    Route::post('/vote/search', 'VoteController@search');
+    Route::post('/vote', 'VoteController@vote');
+
+    Route::get('/group', 'GroupController@index');
+    Route::get('/group/{id}', 'GroupController@show');
+
+    Route::get('/everyone', 'GroupController@everyone');
 
     Route::get('/known', 'KnownController@friend');
     Route::get('/known/messages/get', 'KnownController@get_messages');
