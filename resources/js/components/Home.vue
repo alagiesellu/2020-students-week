@@ -30,10 +30,10 @@
                         {{ $store.state.auth.about }}
                     </div>
                     <div class="button-container pull-right">
-                        <a href="#edit" v-on:click="editProfile('pic')" class="btn btn-link">
+                        <a href="#edit" v-on:click="editProfile('pic')" class="btn btn-sm btn-primary">
                             Picture
                         </a>
-                        <a v-on:click="editProfile('about')" href="#edit" class="btn btn-link">
+                        <a v-on:click="editProfile('about')" href="#edit" class="btn btn-sm btn-primary">
                             About
                         </a>
                     </div>

@@ -23073,7 +23073,7 @@ var render = function() {
                 _c(
                   "a",
                   {
-                    staticClass: "btn btn-link",
+                    staticClass: "btn btn-sm btn-primary",
                     attrs: { href: "#edit" },
                     on: {
                       click: function($event) {
@@ -23091,7 +23091,7 @@ var render = function() {
                 _c(
                   "a",
                   {
-                    staticClass: "btn btn-link",
+                    staticClass: "btn btn-sm btn-primary",
                     attrs: { href: "#edit" },
                     on: {
                       click: function($event) {
