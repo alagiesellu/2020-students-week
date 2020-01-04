@@ -2048,6 +2048,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Everyone",
   data: function data() {
@@ -2512,6 +2517,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Home",
@@ -2898,7 +2904,7 @@ __webpack_require__.r(__webpack_exports__);
   name: "Unknown",
   data: function data() {
     return {
-      friend: new _models_user__WEBPACK_IMPORTED_MODULE_0__["default"]({}),
+      secret_friend_assigned: false,
       messages: {},
       message: null
     };
@@ -2920,14 +2926,19 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     fetchData: function fetchData() {
+      var _this2 = this;
+
       this.getMessages();
+      axios.get('unknown/exists').then(function (res) {
+        _this2.secret_friend_assigned = res.data.secret_friend_assigned;
+      });
     },
     getMessages: function getMessages() {
-      var _this2 = this;
+      var _this3 = this;
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
       axios.get('unknown/messages/get?page=' + page).then(function (res) {
-        _this2.messages = res.data.messages;
+        _this3.messages = res.data.messages;
       });
     }
   }
@@ -3101,7 +3112,7 @@ __webpack_require__.r(__webpack_exports__);
         user: user_id,
         category: this.$route.params.id
       }).then(function (res) {
-        _this.$root.post_success([[res.data.success]]);
+        _this.$root.post_success(res.data.success);
 
         _this.fetchData();
 
@@ -22323,8 +22334,25 @@ var render = function() {
                           _vm._v(
                             "\n                                        " +
                               _vm._s(user.about) +
-                              "\n                                    "
-                          )
+                              "\n                                        "
+                          ),
+                          _vm.$store.state.auth.is_admin &&
+                          user.user &&
+                          user.unknown_user
+                            ? _c("p", { staticClass: "pull-right" }, [
+                                _c(
+                                  "span",
+                                  { attrs: { title: user.user.name } },
+                                  [_vm._v("Known")]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "span",
+                                  { attrs: { title: user.unknown_user.name } },
+                                  [_vm._v("Unknown")]
+                                )
+                              ])
+                            : _vm._e()
                         ])
                       ])
                     ])
@@ -23207,7 +23235,30 @@ var render = function() {
             ])
           ]),
           _vm._v(" "),
-          _vm._m(2)
+          _c("div", { staticClass: "card-footer" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-fill btn-primary",
+                attrs: { type: "submit" }
+              },
+              [_vm._v("Save")]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-fill btn-danger",
+                attrs: { type: "button" },
+                on: {
+                  click: function($event) {
+                    _vm.edit.prop = null
+                  }
+                }
+              },
+              [_vm._v("Cancel")]
+            )
+          ])
         ]
       )
     ])
@@ -23235,18 +23286,6 @@ var staticRenderFns = [
         _c("i", { staticClass: "tim-icons icon-pencil" }),
         _vm._v("\n                    Edit\n                ")
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-footer" }, [
-      _c(
-        "button",
-        { staticClass: "btn btn-fill btn-primary", attrs: { type: "submit" } },
-        [_vm._v("Save")]
-      )
     ])
   }
 ]
@@ -23665,7 +23704,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm.friend.isNull
+  return !_vm.secret_friend_assigned
     ? _c("div", { staticClass: "row" }, [
         _c("div", { staticClass: "col-md-6" }, [
           _c("div", { staticClass: "card card-user" }, [
@@ -23819,7 +23858,7 @@ var staticRenderFns = [
             _vm._v(" "),
             _c("div", { staticClass: "card-description" }, [
               _vm._v(
-                "\n                        You not supposed to know about him/her..!\n                    "
+                "\n                        You not supposed to know this person..!\n                    "
               )
             ])
           ])
@@ -23970,7 +24009,7 @@ var render = function() {
                   },
                   [
                     _vm._v(
-                      "\n                            Vote\n                        "
+                      "\n                            Search the person to vote for\n                        "
                     )
                   ]
                 ),
@@ -41630,6 +41669,7 @@ var vue_app = {
   methods: _methods__WEBPACK_IMPORTED_MODULE_7__["default"]
 };
 window.axios.interceptors.response.use(function (response) {
+  console.log(response.data);
   return response;
 }, function (error) {
   // if auth error, exit user to login page

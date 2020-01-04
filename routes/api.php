@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::post('/login', 'AuthController@login');
 Route::get('/get/configs', 'GetterController@configs');
+Route::get('/cook', 'WebController@cook');
 
 Route::middleware('auth:api')->group(function () {
 
@@ -39,6 +40,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/known/messages/post', 'KnownController@post_messages');
 
     Route::get('/unknown/messages/get', 'UnknownController@get_messages');
+    Route::get('/unknown/exists', 'UnknownController@exists');
     Route::post('/unknown/messages/post', 'UnknownController@post_messages');
 
     Route::get('/gossips', 'GossipController@index');

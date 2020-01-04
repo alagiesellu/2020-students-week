@@ -2,16 +2,19 @@
 
 return [
     'groups' => [
-        '1' => 'Group 1',
-        '2' => 'Group 2',
-        '3' => 'Group 3',
-        '4' => 'Group 4',
+        'java' => 'Team Java',
+        'python' => 'Team Python',
+        'js' => 'Team JavaScript',
+        'php' => 'Team PHP',
     ],
     'vote_categories' => [
-        'beauty' => 'Most Beautiful',
-        'handsome' => 'Most Handsome',
-        'intelligent' => 'Most Intelligent',
         'vocal' => 'Most Vocal',
-        'popular' => 'Most Popular',
+        'serious' => 'Most Serious',
+        'foolish' => 'Most Foolish',
+        'dancer' => 'Best Dancer',
+        'shy' => 'Shy Master',
+        'marry' => 'Have to Marry',
+        'silliest' => 'Silliest Person',
+        'talkactive' => 'Most Talkactive',
     ],
 ];

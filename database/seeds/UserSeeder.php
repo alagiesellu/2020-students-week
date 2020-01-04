@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
                 'name' => 'Male '.$i,
                 'username' => 'm'.$i,
                 'gender' => 'm',
-                'group' => 1,
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
             ]);
         for ($i = 0; $i < 30; $i++)
@@ -24,7 +23,6 @@ class UserSeeder extends Seeder
                 'name' => 'Female '.$i,
                 'username' => 'f'.$i,
                 'gender' => 'f',
-                'group' => 2,
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
             ]);
 

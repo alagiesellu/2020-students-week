@@ -14,7 +14,7 @@ class GroupController extends Controller
     public function everyone()
     {
         return response()->json([
-            'users' => User::orderBy('name', 'asc')->paginate(),
+            'users' => User::orderBy('name', 'asc')->with(['user','unknown_user'])->paginate(),
         ]);
     }
 

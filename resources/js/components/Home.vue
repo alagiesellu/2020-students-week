@@ -67,6 +67,7 @@
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-fill btn-primary">Save</button>
+                    <button type="button" class="btn btn-fill btn-danger" v-on:click="edit.prop = null">Cancel</button>
                 </div>
             </form>
         </div>

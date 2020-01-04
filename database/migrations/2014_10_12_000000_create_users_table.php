@@ -24,7 +24,7 @@ class CreateUsersTable extends Migration
             $table->enum('gender', ['m','f']);
             $table->enum('group', array_keys(config('more.groups')))->nullable();
             $table->boolean('is_admin')->default(false);
-            $table->string('about', 1000)->default('About me....');
+            $table->string('about', 1000)->default('');
             $table->rememberToken();
             $table->timestamps();
         });

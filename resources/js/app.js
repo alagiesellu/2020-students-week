@@ -30,6 +30,7 @@ let vue_app = {
 
 window.axios.interceptors.response.use(
     (response) => {
+        console.log(response.data);
         return response;
     },
     (error) => {

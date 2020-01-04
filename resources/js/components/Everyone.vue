@@ -28,6 +28,11 @@
                                         <p></p>
                                         <div class="card-description">
                                             {{ user.about }}
+                                            <p class="pull-right"
+                                               v-if="$store.state.auth.is_admin && user.user && user.unknown_user">
+                                                <span :title="user.user.name">Known</span>
+                                                <span :title="user.unknown_user.name">Unknown</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

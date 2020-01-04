@@ -1,5 +1,5 @@
 <template>
-    <div class="row" v-if="friend.isNull">
+    <div class="row" v-if="!secret_friend_assigned">
         <div class="col-md-6">
             <div class="card card-user">
                 <div class="card-body" v-if="!$store.state.auth.isNull">
@@ -34,7 +34,7 @@
                             <h4 class="title">My Unknown Secret Friend</h4>
                         </a>
                         <div class="card-description">
-                            You not supposed to know about him/her..!
+                            You not supposed to know this person..!
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
         name: "Unknown",
         data() {
             return {
-                friend: new User({}),
+                secret_friend_assigned: false,
                 messages: {},
                 message: null,
             }
@@ -107,8 +107,12 @@
                 });
             },
             fetchData: function () {
-
                 this.getMessages();
+
+                axios.get('unknown/exists')
+                    .then(res => {
+                        this.secret_friend_assigned = res.data.secret_friend_assigned;
+                    });
             },
             getMessages: function (page = 1) {
 

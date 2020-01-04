@@ -13,6 +13,12 @@ class UnknownController extends Controller
     {
         return User::where('user_id', $request->user()->id)->first();
     }
+    public function exists(Request $request)
+    {
+        return response()->json([
+            'secret_friend_assigned' => $this->friend($request) != null
+        ]);
+    }
 
     public function get_messages(Request $request)
     {

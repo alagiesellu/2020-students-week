@@ -27,7 +27,7 @@
                             <button
                                 data-toggle="modal" data-target="#searchVoteModal"
                                 class="btn btn-sm btn-primary">
-                                Vote
+                                Search the person to vote for
                             </button>
                             <div class="modal modal-search fade" id="searchVoteModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -155,7 +155,7 @@
                     category: this.$route.params.id,
                 })
                 .then(res => {
-                    this.$root.post_success([[res.data.success]]);
+                    this.$root.post_success(res.data.success);
                     this.fetchData();
                     this.users = {};
                 })
