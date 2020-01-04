@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class WebController extends Controller
 {
@@ -14,6 +16,38 @@ class WebController extends Controller
     public function vue_capture()
     {
         return view('vue_capture');
+    }
+
+    public function load()
+    {
+        $males = File::get('storage/males');
+        $females = File::get('storage/females');
+
+        $count = 100;
+
+        foreach(explode(',', $males) as $name) {
+            $name = trim(preg_replace('/\s\s+/', ' ', $name));
+            if ($name != '')
+                User::create([
+                    'name' => $name,
+                    'username' => $count++,
+                    'gender' => 'm',
+                    'password' => 'password',
+                ]);
+        }
+
+        foreach(explode(',', $females) as $name) {
+            $name = trim(preg_replace('/\s\s+/', ' ', $name));
+            if ($name != '')
+                User::create([
+                    'name' => $name,
+                    'username' => $count++,
+                    'gender' => 'f',
+                    'password' => 'password',
+                ]);
+        }
+
+        return $this->cook();
     }
 
     public function cook()

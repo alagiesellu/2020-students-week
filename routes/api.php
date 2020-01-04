@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
 
 Route::post('/login', 'AuthController@login');
 Route::get('/get/configs', 'GetterController@configs');
-Route::get('/cook', 'WebController@cook');
+//Route::get('/load', 'WebController@load');
+//Route::get('/cook', 'WebController@cook');
 
 Route::middleware('auth:api')->group(function () {
 
