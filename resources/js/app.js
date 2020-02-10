@@ -30,7 +30,7 @@ let vue_app = {
 
 window.axios.interceptors.response.use(
     (response) => {
-        console.log(response.data);
+        // console.log(response.data);
         return response;
     },
     (error) => {
@@ -75,3 +75,5 @@ if (token != null) { // if token exist
 }
 
 Vue.component('laravel-vue-pagination', require('laravel-vue-pagination'));
+
+console.log(window.app_name);

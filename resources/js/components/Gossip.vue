@@ -7,7 +7,7 @@
                         <button
                             data-toggle="modal" data-target="#searchGossipModal"
                             class="btn btn-sm btn-primary">
-                            Gossip
+                            Search the person to Gossip
                         </button>
                         <div class="modal modal-search fade" id="searchGossipModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -49,7 +49,7 @@
                                     <button
                                         data-toggle="modal" v-on:click="writeGossip(user)" data-target="#gossipModal"
                                         class="btn btn-sm btn-primary">
-                                        Gossip
+                                        Gossip {{ user.name }}
                                     </button>
                                 </div>
                             </div>
@@ -92,7 +92,7 @@
 
                         <div class="pull-right button-container">
                             <button
-                                v-show="gossip.from_user_id === $store.state.auth.id"
+                                v-show="gossip.from_user_id === $store.state.auth.id || $store.state.auth.is_admin"
                                 v-on:click="deleteGossip(gossip)"
                                 class="btn btn-sm btn-outline-danger">
                                 Delete

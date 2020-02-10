@@ -51,14 +51,16 @@
                                     </div>
                                     <b class="caret d-none d-lg-block d-xl-block"></b>
                                     <p class="d-lg-none">
-                                        Log out
                                     </p>
                                 </a>
                                 <ul class="dropdown-menu dropdown-navbar">
+                                    <li class="dropdown-divider"></li>
+
                                     <li class="nav-link">
-                                        <a href="javascript:void(0)"
+                                        <button
                                                             v-on:click="$root.logout"
-                                                            class="nav-item dropdown-item">Log out</a></li>
+                                                            class="nav-item dropdown-item">Log out</button>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="separator d-lg-none"></li>

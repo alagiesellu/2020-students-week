@@ -92,11 +92,11 @@
                         </div>
                         <div v-else>
                             <div class="row" v-if="votes.data">
-                                <div class="col-md-4" v-for="key in Object.keys(votes.data)">
+                                <div class="col-md-3" v-for="key in Object.keys(votes.data)">
                                     <div class="card card-user">
                                         <div class="card-body">
                                             <h3 class="card-text text-info font-weight-bold">
-                                                # {{ key * 1 + 1}}
+                                                #{{ key * 1 + 1 }}
                                                 <span class="badge badge-info">{{ votes.data[key].count }} Votes</span>
                                             </h3>
                                             <div class="author">
@@ -114,11 +114,6 @@
                                             <div class="card-description">
                                                 {{ votes.data[key].candidate.about }}
                                             </div>
-                                            <button
-                                                v-on:click="submitVote(votes.data[key].candidate.id)"
-                                                class="btn btn-block btn-success">
-                                                Vote for {{ votes.data[key].candidate.name }}
-                                            </button>
                                         </div>
                                     </div>
                                 </div>

@@ -2,10 +2,13 @@
 
 return [
     'groups' => [
-        'java' => 'Team Java',
-        'python' => 'Team Python',
-        'js' => 'Team JavaScript',
-        'php' => 'Team PHP',
+        'mandeng' => 'MANDENG',
+        'jollof' => 'JOLLOF',
+        'fulbe' => 'FULBE',
+        'ajamataw' => 'AJAMATAW',
+        'aku' => 'AKU',
+        'manjago' => 'MANJAGO',
+        'serehule' => 'SARAHULE',
     ],
     'vote_categories' => [
         'vocal' => 'Most Vocal',

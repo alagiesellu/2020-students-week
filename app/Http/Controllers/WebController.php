@@ -20,32 +20,63 @@ class WebController extends Controller
 
     public function load()
     {
-        $males = File::get('storage/males');
-        $females = File::get('storage/females');
-
         $count = 100;
-
-        foreach(explode(',', $males) as $name) {
-            $name = trim(preg_replace('/\s\s+/', ' ', $name));
-            if ($name != '')
-                User::create([
-                    'name' => $name,
-                    'username' => $count++,
-                    'gender' => 'm',
-                    'password' => 'password',
-                ]);
+        if ($file = fopen("storage/males", "r")) {
+            while(!feof($file)) {
+                $name = trim(preg_replace('/\s\s+/', '', fgets($file)));
+                if ($name != '')
+                    User::create([
+                        'name' => $name,
+                        'username' => $count++,
+                        'gender' => 'm',
+                        'password' => 'password',
+                    ]);
+            }
+            fclose($file);
+        }
+        if ($file = fopen("storage/females", "r")) {
+            while(!feof($file)) {
+                $name = trim(preg_replace('/\s\s+/', '', fgets($file)));
+                if ($name != '')
+                    User::create([
+                        'name' => $name,
+                        'username' => $count++,
+                        'gender' => 'f',
+                        'password' => 'password',
+                    ]);
+            }
+            fclose($file);
         }
 
-        foreach(explode(',', $females) as $name) {
-            $name = trim(preg_replace('/\s\s+/', ' ', $name));
-            if ($name != '')
-                User::create([
-                    'name' => $name,
-                    'username' => $count++,
-                    'gender' => 'f',
-                    'password' => 'password',
-                ]);
-        }
+//        dd($males);
+//
+//
+//        $males = File::get('storage/males');
+//        $females = File::get('storage/females');
+//
+//        $count = 100;
+//
+//        foreach(explode(',', $males) as $name) {
+//            $name = trim(preg_replace('/\s\s+/', ' ', $name));
+//            if ($name != '')
+//                User::create([
+//                    'name' => $name,
+//                    'username' => $count++,
+//                    'gender' => 'm',
+//                    'password' => 'password',
+//                ]);
+//        }
+//
+//        foreach(explode(',', $females) as $name) {
+//            $name = trim(preg_replace('/\s\s+/', ' ', $name));
+//            if ($name != '')
+//                User::create([
+//                    'name' => $name,
+//                    'username' => $count++,
+//                    'gender' => 'f',
+//                    'password' => 'password',
+//                ]);
+//        }
 
         return $this->cook();
     }

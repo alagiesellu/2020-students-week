@@ -25,7 +25,29 @@
 <script src="{{ asset('black/assets/js/core/popper.min.js') }}"></script>
 <script src="{{ asset('black/assets/js/core/bootstrap.min.js') }}"></script>
 <script src="{{ asset('black/assets/js/plugins/perfect-scrollbar.jquery.min.js') }}"></script>
-<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('black/assets/js/black-dashboard.min.js?v=1.0.0') }}"></script>
+{{--    <!-- Black Dashboard DEMO methods, don't include it in your project! -->--}}
+{{--<script src="{{ asset('black/assets/demo/demo.js') }}"></script>--}}
+    <script>
+        $(document).ready(function() {
+            $().ready(function() {
+                $sidebar = $('.sidebar');
+                $navbar = $('.navbar');
+                $main_panel = $('.main-panel');
+
+                $full_page = $('.full-page');
+
+                $sidebar_responsive = $('body > .navbar-collapse');
+                sidebar_mini_active = true;
+                white_color = false;
+
+                window_width = $(window).width();
+
+                fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
+            });
+        });
+    </script>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 
 </html>
